@@ -209,12 +209,13 @@ void sums_and_squares3(int N){
 
 void fill(shuffle deck[N_DECK][2]) {
     int ROWS = N_DECK;
-    int COLS = 2;
 
     for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLS; c++) {
-            deck[r][c] = randN(13);
-        }
+        int card = randN(13);
+        int suit = randN(4);
+
+        deck[r][0] = card; 
+        deck[r][1] = suit;
     }
 }
 
@@ -273,14 +274,31 @@ int gsuit(unsigned char card) {
 void names(int card, int suit, char *answer) {
     if (suit > 4 || card > 13) return CARD_ERROR;
 
-    char buf[500];
+    char buf[500]; // buffer to store answer
     answer = buf;
 
     char mid_str[] = " of ";
-    
+
+    int ptr = 0;
     int N = strlen(card_names[card]);
     int M = strlen(suit_names[suit]);
+    
+    for (int i = 0; i < N; i++) {
+        answer[ptr] = card_names[N][i];
+        ptr++;
+    }
 
+    for (int i = 0; i < strlen(mid_str); i++) {
+        answer[ptr] = mid_str[i];
+        ptr++;
+    }
+
+    for (int i = 0; i < M; i++) {
+        answer[ptr] = suit_names[M][i];
+        ptr++;
+    }
+
+    return;
 }
 
 /******************************************************************************
@@ -309,12 +327,29 @@ void names(int card, int suit, char *answer) {
 
 void deal(int M, unsigned char hand[7], int deck[N_DECK][2]) {
     // YOUR CODE HERE ...
+    if (M <= 0 || M > 7 || dealer_deck_count + M > N_DECK) return;
 
+    int card = deck[dealer_deck_count][0];
+    int suit = deck[dealer_deck_count][1];
+        
+    // Convert and add card to hand
+    unsigned char converted_card = convert(card, suit);
+    if (converted_card == CARD_ERROR) return;
+
+    hand[i] = converted_card;
+    dealer_deck_count++;
 }
 
 void printhand(int M, unsigned char* hand, char* buff1) {
-    // YOUR CODE HERE ...
-    
+    for (int i = 0; i < M; i++) {
+        int card = gcard(hand[i]);
+        int suit = gsuit(hand[i]);
+        
+        names(card, suit, buff1);
+        print_str(buff1);
+        print_newl();
+    }
+
 }
 
 /******************************************************************************
@@ -324,6 +359,7 @@ void printhand(int M, unsigned char* hand, char* buff1) {
  *****************************************************************************/
 int pairs(int M, unsigned char hand[]) {
     // YOUR CODE HERE ...
+    
 
     return 0;
 }
