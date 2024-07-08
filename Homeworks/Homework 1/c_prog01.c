@@ -68,7 +68,6 @@ int dealer_deck_count = 0;  // how many cards have been dealt from a deck
  *****************************************************************************/
 
 void count(int N){
-
     for (int i = 1; i <= N; i++) {
         print_int(i);
         print_newl();
@@ -92,8 +91,8 @@ void sums_and_squares1(int N){
 
     // YOUR CODE HERE ...
     for (int i = 1; i <= N; i++) {
-        t1 = i;
-        t2 = i*i;
+        t1 += i;
+        t2 += i*i;
         print_int(i);
         print_newl();
     }
@@ -109,9 +108,7 @@ void sums_and_squares1(int N){
  *      sum of squares: [sum(1^2,2^2,3^2 ... N^2)] 
  *****************************************************************************/
 void sums_and_squares2(int N){
-    char *l1 = NULL;
-    char *l2 = NULL;
-
+    char l1[50], l2[50]; // buffer the store the string
     int sum = 0;
     int sum_of_squares = 0;
 
@@ -120,11 +117,8 @@ void sums_and_squares2(int N){
         sum_of_squares += i*i;
     }
 
-    l1 = (char *)sum;
-    l2 = (char *)sum_of_squares;
-    
-    strncpy("sum: ", l1, strlen(l1)+6);
-    strncpy("sum of squares: ", l2, strlen(l2)+17);
+    snprintf(l1, sizeof(l1), "sum: %d", sum); 
+    snprintf(l2, sizeof(l2), "sum of squares: %d", sum_of_squares);
 
     print_str(l1); print_newl(); print_str(l2); print_newl();
 }
@@ -145,27 +139,26 @@ void sums_and_squares2(int N){
  *****************************************************************************/
 
 char* length_pad(char *st, char* st_buffer, int n) {
-    if (st == NULL || st_buffer == NULL) return;
+    if (st == NULL || st_buffer == NULL) return NULL;
 
-    char buf[500];
-    st_buffer = buf;
-
-    for (int i = 0; i <= strlen(st); i++) {
-        st_buffer[i] = st[i];
-    }
-
-    int N = n - strlen(st);
-
-    for (int i = 0; i < N; i++) {
-        st_buffer[i] = ' ';
+    int len = strlen(st);
+    if (len >= n) {
+        strncpy(st_buffer, st, n);
+        st_buffer[n-1] = '\0';
+    } else {
+        strncpy(st_buffer, st, n);
+        for (int i = len; i < n; i++) {
+            st_buffer[i] = ' ';
+        }
+        st_buffer[n] = '\0';
     }
 
     return st_buffer;
 }
 
 void sums_and_squares3(int N){
-    char *l1 = NULL;
-    char *l2 = NULL;
+    char l1[] = "sum:";
+    char l2[] = "sum of squares:";
     
     int sum = 0;
     int sum_of_sqaures = 0;
@@ -178,7 +171,6 @@ void sums_and_squares3(int N){
     print_str(length_pad(l1,st_buffer, 20)) ; print_int(t1) ; print_newl();
     print_str(length_pad(l2,st_buffer, 20)) ; print_int(t2) ; print_newl();
 }
-
 
 
 /******************************************************************************
@@ -246,19 +238,21 @@ unsigned char convert(int card, int suit) {
 
 // Test if a card byte is a valid card
 int valid_card(unsigned char card){
-    int card_type = (card >> 4) & 0xF;
+    int card_type = (card >> 4) & 0xF; 
     int suit = card & 0xF;
     
-    return (card_type > 13) && (suit > 4);
+    return (card_type <= 13) && (card_type > 0) && (suit <= 4) && (suit > 0);
 }
 
 // your code for gsuit and gcard here
 int gcard(unsigned char card) {
-    return card > 13 ? CARD_ERROR : (card >> 4) & 0xF;
+    int card_type = (card >> 4) & 0xF;
+    return (card_type > 13 || card_type == 0) ? CARD_ERROR : card_type;
 }
 
 int gsuit(unsigned char card) {
-    return card > 4 ? CARD_ERROR : card & 0xF;;
+    int suit = card & 0xF;
+    return (suit > 4 || suit == 0) ? CARD_ERROR : suit;
 }
 
 /******************************************************************************
@@ -272,7 +266,7 @@ int gsuit(unsigned char card) {
  *****************************************************************************/
 
 void names(int card, int suit, char *answer) {
-    if (suit > 4 || card > 13) return CARD_ERROR;
+    if (suit > 4 || card > 13) return;
 
     char buf[500]; // buffer to store answer
     answer = buf;
@@ -297,7 +291,6 @@ void names(int card, int suit, char *answer) {
         answer[ptr] = suit_names[M][i];
         ptr++;
     }
-
     return;
 }
 
@@ -359,23 +352,53 @@ void printhand(int M, unsigned char* hand, char* buff1) {
  *****************************************************************************/
 int pairs(int M, unsigned char hand[]) {
     // YOUR CODE HERE ...
-    
+    int count[14] = {0};
+    int pairs = 0;
 
-    return 0;
+    for (int i = 0; i < M; i++) {
+        int card = gcard(hand[i]);
+        if (card != CARD_ERROR) {
+            count[card]++;
+        }
+        if (count[card] == 2) {
+            pairs++;
+        }
+    }
+    return pairs;
 }
 
 int trip_s(int M, unsigned char hand[]) {
     
     // YOUR CODE HERE ...
+    int count[14] = {0};
+    int trips = 0;
 
-    return 0;
+    for (int i = 0; i < M; i++) {
+        int card = gcard(hand[i]);
+        if (card != CARD_ERROR) {
+            count[card]++;
+        }
+        if (count[card] == 3) {
+            trips++;
+        }
+    }
+    return trips;
 }
 
 int four_kind(int M, unsigned char hand[]) {
-  
-    // YOUR CODE HERE ...
+    int count[14] = {0};
+    int fours = 0;
 
-    return 0;
+    for (int i = 0; i < M; i++) {
+        int card = gcard(hand[i]);
+        if (card != CARD_ERROR) {
+            count[card]++;
+        }
+        if (count[card] == 4) {
+            fours++;
+        }
+    }
+    return fours;
 }
 
 //  Predefined helper function to return a random integer between 1 and n
